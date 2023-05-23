@@ -21,6 +21,7 @@ def open3d_show(xyz, voxel=False):
     # pcd.colors = o3d.utility.Vector3dVector(colors/65535)
 
     if voxel:
+        print("voxel activated")
         voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.1)
         o3d.visualization.draw_geometries([voxel_grid])
     else:
@@ -29,7 +30,7 @@ def open3d_show(xyz, voxel=False):
     return
 
 
-scan = np.fromfile("./kitty/velodyne_points/data/0000000000.bin", dtype=np.float32)
+scan = np.fromfile("./dataset/lidar/0000000000.bin", dtype=np.float32)
 
 x_list = []
 y_list = []
