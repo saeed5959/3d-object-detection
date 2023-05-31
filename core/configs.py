@@ -12,11 +12,12 @@ class ModelConfig:
         self.x_bound: list = [-0.2, 0.2]#[-8, 8]
         self.y_bound: list =[0,0.2]#[0, 4]
         self.z_bound: list = [-0.2,0.2]#[-16, 16]
-
         self.x_voxel_len: int = 0.1
         self.y_voxel_len: int = 0.1
         self.z_voxel_len: int = 0.1
         self.intensity_norm: int = 10 #1000
+
+        self.input_dim: int = 5
                                                                          
 
 
