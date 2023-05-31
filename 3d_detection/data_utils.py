@@ -17,6 +17,8 @@ class DatasetObjectDetection(Dataset):
         #split data with |
         data_list = data.split("|")
 
+        #change voxelize input dimention from (y,x,z,5) to (5,y,x,z)
+
 
         return
     
