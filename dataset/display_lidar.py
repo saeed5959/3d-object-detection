@@ -50,5 +50,5 @@ y = np.array(y_list)
 z = np.array(z_list)
 xyz = np.array(xyz_list)
 
-open3d_show(xyz)
+open3d_show(xyz, voxel=True)
 #matplot_show(x,y,z)

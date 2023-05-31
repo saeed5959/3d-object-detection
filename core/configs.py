@@ -9,17 +9,14 @@ class ModelConfig:
     """
 
     def __init__(self):
-        self.height: int = 256
-        self.width: int = 256
-        self.dim: int = 768
-        self.head_num: int = 2
-        self.patch_size: int = 16
-        self.patch_num: int = 256
-        self.patch_num_h: int = 16
-        self.source: bool = False
-        self.class_num: int = 90 
-        self.augmentation: bool = False
-        self.augment_num: int = 1
+        self.x_bound: list = [-0.2, 0.2]#[-8, 8]
+        self.y_bound: list =[0,0.2]#[0, 4]
+        self.z_bound: list = [-0.2,0.2]#[-16, 16]
+
+        self.x_voxel_len: int = 0.1
+        self.y_voxel_len: int = 0.1
+        self.z_voxel_len: int = 0.1
+        self.intensity_norm: int = 10 #1000
                                                                          
 
 
