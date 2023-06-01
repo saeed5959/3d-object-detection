@@ -3,10 +3,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from object_detection import models
+from detection import models
 from core.settings import train_config, model_config
-from object_detection.data_utils import DatasetObjectDetection, augmentation
-from object_detection.utils import load_pretrained
+from detection.data_utils import DatasetObjectDetection, augmentation
+from detection.utils import load_pretrained
 
 device = train_config.device
 
@@ -18,7 +18,7 @@ def main(training_files:str, model_path:str, pretrained: str):
     train_loader = DataLoader(train_dataset, num_workers=4, shuffle=True,
                               batch_size=train_config.batch_size)
 
-    model = models.VitModel().to(device)
+    model = models.VoxelTransModel().to(device)
     if pretrained != "":
         model = load_pretrained(model, pretrained, device)
         print("pretrained model loaded!")

@@ -20,6 +20,8 @@ class ModelConfig:
         self.input_dim: int = 5
         self.dim: int = int(64*self.y_bound[1]/self.y_voxel_len/4)#640
         self.bev_num: int = int(((self.x_bound[1]-self.x_bound[0]) / self.x_voxel_len / 4) * ((self.z_bound[1]-self.z_bound[0]) / self.z_voxel_len / 4))#3200
+        self.head_num: int = 2
+        self.class_num: int = 10
                                                                          
 
 
