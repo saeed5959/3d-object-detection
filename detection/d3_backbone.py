@@ -3,9 +3,7 @@ from torch import nn
 from torch.nn.functional import layer_norm, relu
 from einops import rearrange
 
-from core.settings import model_config, train_config
-
-device = train_config.device
+from core.settings import model_config
 
 class Detect3D(nn.Module):
     def __init__(self):
@@ -14,40 +12,44 @@ class Detect3D(nn.Module):
         self.dim = model_config.dim
         self.bev_num = model_config.bev_num
         self.conv3d_1 = nn.Sequential(
-            nn.Conv3d(self.input_dim, 16, kernel_size=3, padding='same'),
-            nn.BatchNorm3d(16),
+            nn.Conv3d(self.input_dim, 32, kernel_size=3, padding='same'),
+            nn.BatchNorm3d(32),
             nn.ReLU(),
-            nn.Conv3d(16, 32, kernel_size=3, padding='same'),
+            nn.Conv3d(32, 32, kernel_size=3, padding='same'),
             nn.BatchNorm3d(32)
         )
         self.conv3d_2 =nn.Sequential(
-            nn.Conv3d(32, 48, kernel_size=3, padding='same'),
-            nn.BatchNorm3d(48),
+            nn.Conv3d(32, 64, kernel_size=3, padding='same'),
+            nn.BatchNorm3d(64),
             nn.ReLU(),
-            nn.Conv3d(48, 64, kernel_size=3, padding='same'),
+            nn.Conv3d(64, 64, kernel_size=3, padding='same'),
+            nn.BatchNorm3d(64),
+        )
+        self.conv3d_3 =nn.Sequential(
+            nn.Conv3d(64, 64, kernel_size=5, padding='same'),
+            nn.BatchNorm3d(64),
+            nn.ReLU(),
+            nn.Conv3d(64, 64, kernel_size=5, padding='same'),
             nn.BatchNorm3d(64),
         )
         self.conv1d_1 = nn.Conv3d(self.input_dim, 32, kernel_size=1, padding='same')
         self.conv1d_2 = nn.Conv3d(32, 64, kernel_size=1, padding='same')
+        self.conv1d_3 = nn.Conv3d(64, 64, kernel_size=1, padding='same')
         self.maxpool_1 = nn.MaxPool3d(2)
         self.maxpool_2 = nn.MaxPool3d(2)
-
-        self.pos_embed = nn.Embedding(self.bev_num, self.dim)
+        self.maxpool_3 = nn.MaxPool3d(2)
 
 
     def forward(self, x):
 
         x = self.resnet(x)
         x = layer_norm(x, [x.size()[-4], x.size()[-3], x.size()[-2], x.size()[-1]])
-        x = self.bev_map(x)
-            
-        pos = self.position_embedding(x)
-        out = x+pos
+        out = self.bev_map(x)
 
         return out
     
     def bev_map(self, x):
-        out = rearrange(x, 'b c dy dx dz -> b (dz dx) (dy c)')
+        out = rearrange(x, 'b c dy dx dz -> b (dy c) dx dz')
         
         return out
     
@@ -58,12 +60,8 @@ class Detect3D(nn.Module):
         x_conv3d_2 = self.conv3d_2(x_maxpool_1)
         x_maxpool_2 = self.maxpool_2(relu(x_conv3d_2 + self.conv1d_2(x_maxpool_1)))
 
-        return x_maxpool_2
-    
-    def position_embedding(self, x):
-        #using a learnable 1D-embedding in a raster order
-        batch_number, d_bev, dim = x.size()
-        pos = torch.arange(d_bev).repeat(batch_number,1).to(device)
-        out = self.pos_embed(pos)
+        x_conv3d_3 = self.conv3d_3(x_maxpool_2)
+        x_maxpool_3 = self.maxpool_3(relu(x_conv3d_3 + self.conv1d_3(x_maxpool_2)))
 
-        return out
+        return x_maxpool_3
+    

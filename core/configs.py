@@ -12,14 +12,15 @@ class ModelConfig:
         self.x_bound: list = [-0.2, 0.2]#[-8, 8]
         self.y_bound: list =[0,0.2]#[0, 4]
         self.z_bound: list = [-0.2,0.2]#[-16, 16]
-        self.x_voxel_len: int = 0.1
+        self.x_voxel_len: int = 0.05
         self.y_voxel_len: int = 0.1
-        self.z_voxel_len: int = 0.1
+        self.z_voxel_len: int = 0.05
         self.intensity_norm: int = 10 #1000
+        self.downsample: int = 8#2^num_max_pooling
 
         self.input_dim: int = 5
-        self.dim: int = int(64*self.y_bound[1]/self.y_voxel_len/4)#640
-        self.bev_num: int = int(((self.x_bound[1]-self.x_bound[0]) / self.x_voxel_len / 4) * ((self.z_bound[1]-self.z_bound[0]) / self.z_voxel_len / 4))#3200
+        self.dim: int = int(64 * self.y_bound[1] / self.y_voxel_len / self.downsample)#320
+        self.bev_num: int = int(((self.x_bound[1]-self.x_bound[0]) / self.x_voxel_len / self.downsample) * ((self.z_bound[1]-self.z_bound[0]) / self.z_voxel_len / self.downsample))#3200
         self.head_num: int = 2
         self.class_num: int = 10
                                                                          
