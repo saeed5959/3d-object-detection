@@ -75,6 +75,6 @@ def make_voxel(pointcloud_rgb):
 
     return pointcloud_voxel
 
-pointcloud_rgb = [[0.09,0.15,0.16,4,5,6]] #(x,y,z,r,g,b)
-pointcloud_voxel = make_voxel(pointcloud_rgb)
-print(pointcloud_voxel)
+# pointcloud_rgb = [[0.09,0.15,0.16,4,5,6]] #(x,y,z,r,g,b)
+# pointcloud_voxel = make_voxel(pointcloud_rgb)
+# print(pointcloud_voxel)
