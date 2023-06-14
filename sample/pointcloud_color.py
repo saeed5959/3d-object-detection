@@ -49,6 +49,7 @@ def point_color(lidar_path: str, img_path: str):
             point = np.array([pointcloud_list[i], pointcloud_list[i+1], pointcloud_list[i+2]])
             point_transform = np.matmul(R, np.transpose(point)) + np.transpose(t)
             y, z, x = -1*point_transform[0], -1*point_transform[1], point_transform[2]
+            # x, y, z = pointcloud_list[i], pointcloud_list[i+1], pointcloud_list[i+2]
 
             if (x<80 and x>0) and (y<40 and y>-40) and (z<4 and z>-4) and (np.abs(y) < y_agnle*x) and (np.abs(z) < z_angle*x):
                 pointcloud.append([x, y, z])
