@@ -7,7 +7,7 @@ This work has been inspired by [Voxel Transformer for 3D Object Detection](https
 <br/>
 
 ---
-The pretrained model will be added soon : because the lack of availibility to GPU
+The pretrained model will be added soon : because the lack of access to GPU
 <br/>
 
 ---
@@ -22,9 +22,6 @@ The pretrained model will be added soon : because the lack of availibility to GP
 <br/>
 
 3D Object Detection by Colorful Pointcloud
-<br/>
-Alignment Between RGB Pointcloud and Lidar Pointcloud
-
 
 One of the most critical task in autonomous vehicle is to detect different kind of object in
 the environment. Detecting these objects are important due to different reaction we have
@@ -38,8 +35,8 @@ performance to the other models.
 ---
 <br/>
 
-### Sample output
-<img src="/alignment.jpg" width="900" height="300" border="20" title="model">
+### Alignment Between RGB Pointcloud and Lidar Pointcloud
+<img src="/alignment.png" width="900" height="300" border="20" title="model">
 
 ---
 
