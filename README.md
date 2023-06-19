@@ -35,7 +35,7 @@ performance to the other models.
 ---
 <br/>
 
-### Alignment Between RGB Pointcloud and Lidar Pointcloud
+### Alignment Between RGB Image and Lidar Pointcloud
 <img src="/alignment.png" width="900" height="300" border="20" title="model">
 
 ---
