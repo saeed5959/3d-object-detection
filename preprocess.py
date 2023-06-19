@@ -107,9 +107,9 @@ def main(rgb_folder: str, pointcloud_folder: str, out_folder: str, file_path_out
     return 
 
 
-rgb_folder = ""
-pointcloud_folder = ""
-out_folder = ""
+rgb_folder = "./dataset/rgb"
+pointcloud_folder = "./dataset/pointcloud"
+out_folder = "./dataset/out"
 file_path_out = "./dataset/dataset_out.txt"
 
 main(rgb_folder, pointcloud_folder, out_folder, file_path_out)

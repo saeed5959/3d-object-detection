@@ -1,6 +1,5 @@
 import torch
 from torch.utils.data import Dataset
-import cv2
 import numpy as np
 from einops import rearrange
 
@@ -19,17 +18,13 @@ class DatasetObjectDetection(Dataset):
         data_list = data.split("|")
 
         #read image and convert to tensor
-        img_path = data_list[0]
+        data_path = data_list[0]
         pointcloud_voxel = np.fromfile(data_path, dtype=np.float32)
 
         #change voxelize input dimention from (y,x,z,5) to (5,y,x,z)
         pointcloud_voxel = rearrange(pointcloud_voxel, 'x y z c -> c x y z')
 
         pointcloud_voxel = torch.Tensor(pointcloud_voxel)
-        
-        img = cv2.imread(img_path) / 255
-        img = rearrange(img, 'h w c -> c h w')
-        img = torch.Tensor(img)
 
         #read bounding box
         data_list = data_list[1:]
