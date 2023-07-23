@@ -7,7 +7,7 @@ This work has been inspired by [Voxel Transformer for 3D Object Detection](https
 <br/>
 
 ---
-The pretrained model will be added soon : because the lack of access to GPU
+The pretrained model will be added soon
 <br/>
 
 ---
