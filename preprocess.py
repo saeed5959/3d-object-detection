@@ -7,6 +7,7 @@ import imageio.v3 as iio
 
 from detection.voxelization import make_voxel
 from core.settings import model_config
+from detection.image_detection import yolo_detection
 
 
 def save_file(file_path: str, data_file: list):
@@ -88,7 +89,23 @@ def make_alignment_voxel(rgb_path: str, pointcloud_path: str, out_path: str):
     return
 
 
+def make_mask(obj_box_norm):
+
+
+
+
+    return mask
+
+
+def make_3d_box(obj_box_norm, label_file):
+
+
+    return coordinate_target_3d
+
+
 def main(rgb_folder: str, pointcloud_folder: str, out_folder: str, file_path_out: str):
+
+    
 
     dataset = []
     for rgb_name in os.listdir(rgb_folder):
@@ -99,8 +116,15 @@ def main(rgb_folder: str, pointcloud_folder: str, out_folder: str, file_path_out
         pointcloud_path = os.path.join(pointcloud_folder, pointcloud_name)
         out_path = os.path.join(out_folder, out_name)
 
-        make_alignment_voxel(rgb_path, pointcloud_path, out_path)
-        dataset.append(out_path)
+        objs_class, objs_box_norm = yolo_detection(rgb_path)
+        voxel = make_alignment_voxel(pointcloud_path)
+
+        for obj_class, obj_box_norm in zip(objs_class, objs_box_norm):
+            mask = make_mask(obj_box_norm)
+            coordinate_target_3d = make_3d_box(obj_box_norm, label_file)
+            voxel_mask = voxel * mask
+            np.save(out_path, voxel_mask)
+            dataset.append(f"{out_path}|{obj_class}|{coordinate_target_3d}")
 
     save_file(file_path_out, dataset)
 
@@ -111,5 +135,6 @@ rgb_folder = "./dataset/rgb"
 pointcloud_folder = "./dataset/pointcloud"
 out_folder = "./dataset/out"
 file_path_out = "./dataset/dataset_out.txt"
+label_file = ""
 
-main(rgb_folder, pointcloud_folder, out_folder, file_path_out)
+main(rgb_folder, pointcloud_folder, out_folder, file_path_out, label_file)

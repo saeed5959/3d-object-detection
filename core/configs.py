@@ -9,6 +9,7 @@ class ModelConfig:
     """
 
     def __init__(self):
+        self.path_yolo: str = "./dataset/pretrain_yolo/yolov8x.pt"
         self.x_bound: list = [-0.2, 0.2]#[-8, 8]
         self.y_bound: list =[0,0.2]#[0, 4]
         self.z_bound: list = [-0.2,0.2]#[-16, 16]
