@@ -16,6 +16,8 @@ class ModelConfig:
         self.x_voxel_len: int = 0.05
         self.y_voxel_len: int = 0.1
         self.z_voxel_len: int = 0.05
+        self.x_theta: int = 41
+        self.y_theta: int = 15
         self.intensity_norm: int = 10 #1000
         self.downsample: int = 8#2^num_max_pooling
 

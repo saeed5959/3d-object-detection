@@ -11,6 +11,6 @@ def yolo_detection(img_path: str):
 
     obj_class = results.boxes.cls
     obj_boxes_norm = results.boxes.xywhn
-    # img_shape = results.orig_shape
-    
+    #img_shape = results.orig_shape
+
     return obj_class, obj_boxes_norm

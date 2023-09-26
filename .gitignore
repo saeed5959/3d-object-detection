@@ -3,3 +3,6 @@ dataset/
 __pycache__/
 
 runs/
+
+test.ipynb
+test.py

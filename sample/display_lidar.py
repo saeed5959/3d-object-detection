@@ -30,7 +30,13 @@ def open3d_show(xyz, voxel=False):
     return
 
 
-scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/0000000076.bin", dtype=np.float32)
+def graphic_view(xyz):
+    import pypotree
+    cloudpath = pypotree.generate_cloud_for_display(xyz)
+    pypotree.display_cloud_colab(cloudpath)
+
+
+scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/0000000024.bin", dtype=np.float32)
 # scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/0000000024.bin", dtype=np.float32)
 
 x_list = []
@@ -40,7 +46,7 @@ xyz_list = []
 
 #scan have 4 value : x,y,z,0
 for i in range(len(scan)):
-    if i%8 == 0 :
+    if i%4 == 0 :
         y, z, x = scan[i], scan[i+1], scan[i+2]
         x_list.append(x)
         y_list.append(y)
@@ -54,4 +60,5 @@ xyz = np.array(xyz_list)
 
 # print(scan[0:10])
 # open3d_show(xyz, voxel=False)
-matplot_show(x,y,z)
+# matplot_show(x,y,z)
+graphic_view(xyz)
