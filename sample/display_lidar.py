@@ -36,7 +36,7 @@ def graphic_view(xyz):
     pypotree.display_cloud_colab(cloudpath)
 
 
-scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/0000000024.bin", dtype=np.float32)
+scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/003090.bin", dtype=np.float32)
 # scan = np.fromfile("/home/saeed/software/python/pointcloud/git_code/sample/kitty/0000000024.bin", dtype=np.float32)
 
 x_list = []

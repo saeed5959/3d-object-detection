@@ -1,15 +1,10 @@
-import json
 import os
-import cv2
 import numpy as np
-from tqdm import tqdm
 import imageio.v3 as iio
 
 from core.settings import model_config
-from detection.image_detection import yolo_detection
-from core.settings import model_config
 
-
+label_class = {'Car':1, 'Van':1, 'Truck':1, 'Pedestrian':2, 'Person_sitting':2, 'Cyclist':3, 'Tram':1}
 
 def save_file(file_path: str, data_file: list):
 
@@ -21,59 +16,24 @@ def save_file(file_path: str, data_file: list):
     return
 
 
-def alignment(rgb_path, pointcloud_path):
+def make_label(label_path: str):
 
-    pointcloud_list = np.fromfile(pointcloud_path, dtype=np.float32)
-    #img = cv2.imread(img_path)
-    # o3d accept order in rgb but cv2 order is bgr 
-    img = iio.imread(rgb_path)
-    h, w, _ = img.shape
+    label = []
+    with open(label_path) as file:
+        label_file = file.readlines()
 
-    pointcloud = []
-    color = []
-    pointcloud_color = []
+    for line in label_file:
+        line = line.split(" ")
 
-    R = np.array([[7.533745e-03, -9.999714e-01, -6.166020e-04], 
-                [1.480249e-02, 7.280733e-04, -9.998902e-01],
-                [9.998621e-01, 7.523790e-03, 1.480755e-02]])
+        if line[0] in label:
+            cx = ((line[4] + line[6]) / 2) / model_config.w_image
+            cy = ((line[5] + line[7]) / 2) / model_config.h_image
+            w = ((line[6] - line[4]) / 2) / model_config.w_image
+            h = ((line[7] - line[5]) / 2) / model_config.h_image
+            label.append({"class":label[line[0]], "cx_cy_w_h":(cx,cy,w,h), "H_W_L":(line[8], line[9], line[10]),
+                            "tx_ty_tz":(line[11], line[12], line[13]), "rot":line[14]})
 
-    t = np.array([-4.069766e-03, -7.631618e-02,-2.717806e-01])
-
-    #y-axis : angle_y=41 >> tg(angle_y) = (w/2)/f = y/x >>  w/2 = 0.81*f , y==0.81*x 
-    #z-axis : angle=?  , tg(angle_z) = (h/2)/f = (h/2)/(w/(0.81*2)) = z/x >>  z==((h/w)*0.81)*x     >> angle_z = 15
-    y_agnle = np.tan(np.pi/180*41)
-    z_angle = (h/w) * y_agnle
-
-    #scan have 4 value : x,y,z,0
-    for i in range(len(pointcloud_list)):
-        if i%4 == 0 :
-
-            # transformation from lidar coordinate to camera coordinate 
-            point = np.array([pointcloud_list[i], pointcloud_list[i+1], pointcloud_list[i+2]])
-            point_transform = np.matmul(R, np.transpose(point)) + np.transpose(t)
-            y, z, x = -1*point_transform[0], -1*point_transform[1], point_transform[2]
-
-            if (x<80 and x>0) and (y<40 and y>-40) and (z<4 and z>-4) and (np.abs(y) < y_agnle*x) and (np.abs(z) < z_angle*x):
-                #pointcloud
-                pointcloud.append([x, y, z])
-
-                #color
-                x_img = (y_agnle*x-y) / (2*y_agnle*x) * w
-                y_img = (z_angle*x - z) / (2*z_angle*x) * h
-                rgb = img[int(y_img), int(x_img), :]
-                color.append(rgb)
-
-                #pointcloud + color
-                r, g, b = rgb[0], rgb[1], rgb[2]
-                pointcloud_color.append([x, y, z, r, g, b])
-
-                
-
-    pointcloud = np.array(pointcloud)
-    color = np.array(color)
-    pointcloud_color = np.array(pointcloud_color)
-
-    return pointcloud_color
+    return label
 
 
 def make_voxel(pointcloud_path):
@@ -125,9 +85,9 @@ def make_voxel(pointcloud_path):
     return voxel
 
 
-def make_mask(obj_box_norm, voxel_shape):
+def make_mask(label, voxel_shape):
 
-    cx, cy, w, h = obj_box_norm[0], obj_box_norm[1], obj_box_norm[3], obj_box_norm[4]
+    cx, cy, w, h = label["cx_cy_w_h"]
     x_angle_max = np.tan(np.pi/180*model_config.x_theta) * (cx + w/2 - 0.5) / 0.5
     x_angle_min = np.tan(np.pi/180*model_config.x_theta) * (cx - w/2 - 0.5) / 0.5
     y_angle_max = np.tan(np.pi/180*model_config.y_theta) * (cy + h/2 - 0.5) / 0.5
@@ -156,36 +116,28 @@ def make_mask(obj_box_norm, voxel_shape):
     return mask
 
 
-def make_3d_target(obj_box_norm, label_file):
-
-
-    return coordinate_target_3d
-
-
-def main(rgb_folder: str, pointcloud_folder: str, out_folder: str, file_path_out: str):    
+def main(pointcloud_folder: str, out_folder: str, file_path_out: str, label_folder: str):    
 
     intensity_max = 0
     dataset = []
-    for rgb_name in os.listdir(rgb_folder):
-        pointcloud_name = rgb_name[:-3] + "bin"
-        out_name = rgb_name[:-3] + "bin"
+    for point_name in os.listdir(pointcloud_folder):
+        label_name = point_name[:3] + "txt"
+        out_name = point_name[:-3] + "bin"
 
-        rgb_path = os.path.join(rgb_folder, rgb_name)
-        pointcloud_path = os.path.join(pointcloud_folder, pointcloud_name)
+        pointcloud_path = os.path.join(pointcloud_folder, point_name)
+        label_path = os.path.join(label_folder, label_name)
         out_path = os.path.join(out_folder, out_name)
 
-        objs_class, objs_box_norm = yolo_detection(rgb_path)
+        labels = make_label(label_path)
         voxel = make_voxel(pointcloud_path)
         if np.max(voxel) > intensity_max:
             intensity_max = np.max(voxel)
 
-        for obj_class, obj_box_norm in zip(objs_class, objs_box_norm):
-            coordinate_target_3d = make_3d_target(obj_box_norm, label_file)
-            if coordinate_target_3d != []:
-                mask = make_mask(obj_box_norm, voxel.shape)
-                voxel_mask = voxel * mask
-                np.save(out_path, voxel_mask)
-                dataset.append(f"{out_path}|{obj_class}|{coordinate_target_3d}")
+        for label in labels:
+            mask = make_mask(label, voxel.shape)
+            voxel_mask = voxel * mask
+            np.save(out_path, voxel_mask)
+            dataset.append(f"{out_path}|{label['class']}|{label['']}")
 
     save_file(file_path_out, dataset)
 
@@ -196,6 +148,6 @@ rgb_folder = "./dataset/rgb"
 pointcloud_folder = "./dataset/pointcloud"
 out_folder = "./dataset/out"
 file_path_out = "./dataset/dataset_out.txt"
-label_file = ""
+label_folder = ""
 
-main(rgb_folder, pointcloud_folder, out_folder, file_path_out, label_file)
+main(rgb_folder, pointcloud_folder, out_folder, file_path_out, label_folder)
