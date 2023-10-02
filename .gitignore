@@ -3,6 +3,7 @@ dataset/
 __pycache__/
 
 runs/
+sample/
 
 test.ipynb
 

@@ -1,10 +1,9 @@
 import os
 import numpy as np
-import imageio.v3 as iio
 
 from core.settings import model_config
+from detection.utils import make_label
 
-label_class = {'Car':1, 'Van':1, 'Truck':1, 'Pedestrian':2, 'Person_sitting':2, 'Cyclist':3, 'Tram':1}
 
 def save_file(file_path: str, data_file: list):
 
@@ -14,26 +13,6 @@ def save_file(file_path: str, data_file: list):
             file.write("\n" + line)
 
     return
-
-
-def make_label(label_path: str):
-
-    label = []
-    with open(label_path) as file:
-        label_file = file.readlines()
-
-    for line in label_file:
-        line = line.split(" ")
-
-        if line[0] in label:
-            cx = ((line[4] + line[6]) / 2) / model_config.w_image
-            cy = ((line[5] + line[7]) / 2) / model_config.h_image
-            w = ((line[6] - line[4]) / 2) / model_config.w_image
-            h = ((line[7] - line[5]) / 2) / model_config.h_image
-            label.append({"class":label[line[0]], "cx_cy_w_h":(cx,cy,w,h), "H_W_L":(line[8], line[9], line[10]),
-                            "tx_ty_tz":(line[11], line[12], line[13]), "rot":line[14]})
-
-    return label
 
 
 def make_voxel(pointcloud_path):
@@ -137,17 +116,19 @@ def main(pointcloud_folder: str, out_folder: str, file_path_out: str, label_fold
             mask = make_mask(label, voxel.shape)
             voxel_mask = voxel * mask
             np.save(out_path, voxel_mask)
-            dataset.append(f"{out_path}|{label['class']}|{label['']}")
-
+            dataset.append(f"{out_path}|{label['class']}|{label['H_W_L']}|{label['tx_ty_tz']|{label['rot']}}")
+            # remember to normalize tx_ty_tz and rot in data loader
     save_file(file_path_out, dataset)
+
+    with open("./intensity_max.txt", "w") as file:
+        file.write(str(intensity_max)) 
 
     return 
 
-
-rgb_folder = "./dataset/rgb"
+img_folder = "./dataset/img"
 pointcloud_folder = "./dataset/pointcloud"
 out_folder = "./dataset/out"
 file_path_out = "./dataset/dataset_out.txt"
-label_folder = ""
+label_folder = "./dataset/label"
 
-main(rgb_folder, pointcloud_folder, out_folder, file_path_out, label_folder)
+main(pointcloud_folder, out_folder, file_path_out, label_folder)

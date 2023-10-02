@@ -2,6 +2,7 @@
     All config is in here
 """
 import torch
+import numpy as np
 
 class ModelConfig:
     """
@@ -10,16 +11,16 @@ class ModelConfig:
 
     def __init__(self):
         self.path_yolo: str = "./dataset/pretrain_yolo/yolov8x-seg.pt"
-        self.x_bound: list = [-0.2, 0.2]#[-8, 8]
-        self.y_bound: list =[0,0.2]#[0, 4]
-        self.z_bound: list = [-0.2,0.2]#[-16, 16]
+        self.x_bound: list = [-30, 30]
+        self.y_bound: list =[-3, 3]
+        self.z_bound: list = [0, 60]
         self.x_voxel_len: int = 0.05
         self.y_voxel_len: int = 0.1
         self.z_voxel_len: int = 0.05
-        self.x_theta: int = 41
-        self.y_theta: int = 15
         self.h_image: int = 376
         self.w_image: int = 1241
+        self.x_theta: int = 41
+        self.y_theta: int = np.arctan((self.h_image/self.w_image)*np.tan(np.pi/180*self.x_theta))*180/np.pi
         self.intensity_norm: int = 10 #1000
         self.downsample: int = 8#2^num_max_pooling
 
